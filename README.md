@@ -1,0 +1,2 @@
+# GOTraining
+Belajar GO
