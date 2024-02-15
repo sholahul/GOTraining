@@ -46,18 +46,37 @@ func main() {
 
 	name = &name2
 
+	//int dan uint
+	var positiveNumber uint8 = 89
+	var negativeNumber = -1243423644
+
+	//float32 dan float64
+	var decimalNumber = 2.62
+
+	//konstanta (tidak dapat diubah)
+	const phi := 22.7
+
 	fmt.Printf("halo %s %s %s!\n", firstName, middlename, lastName)
 	fmt.Printf("halo %s %s %s!\n", awal, tengah, akhir)
 	fmt.Printf("halo %s %s %s!\n", awal1, tengah1, akhir1)
 	fmt.Printf("halo %d %f %s!\n", integ, float, str)
+
 	// using %t untuk boolean dan printf, tidak dapat menggunakan Println
 	fmt.Printf("terkadang %t dan %t \n", bool1, bool2)
 	fmt.Println(message)
+
 	//concat string menggunakan printf
 	// fmt.Printf("%s", awal, +"ganteng")
 	fmt.Println(name2, name)
 	fmt.Printf("nama : %s \n", name2)
+
 	// print pointer using *
 	fmt.Printf("nama : %s", *name)
+
+	fmt.Printf("\nbilangan positif: %d\n", positiveNumber)
+	fmt.Printf("bilangan negatif: %d\n", negativeNumber)
+
+	fmt.Printf("bilangan desimal: %f\n", decimalNumber)
+	fmt.Printf("bilangan desimal: %.3f\n", decimalNumber)
 
 }
