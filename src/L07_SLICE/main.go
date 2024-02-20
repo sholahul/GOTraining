@@ -40,4 +40,6 @@ func main() {
 	fmt.Println("anewfruits2 :", anewfruits2)
 	fmt.Println("\n\nFungsi Len anewfruits2 : ", len(anewfruits2))
 	fmt.Println("Fungsi Cap anewfruits2 : ", cap(anewfruits2))
+
+	
 }
