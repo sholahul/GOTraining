@@ -1,10 +1,11 @@
 package main
 
 import (
-	"bsblink/github.com/gorilla/mux"
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -15,5 +16,5 @@ func main() {
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
-	log.Println("ada yang akses jam ", timeString)
+	log.Println("ada yang akses jam")
 }
