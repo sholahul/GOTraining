@@ -37,6 +37,7 @@ func main() {
 	router.HandleFunc("/Auth", Auth).Methods("POST")
 	router.HandleFunc("/GetUser", controller.GetUsers(db)).Methods("GET")
 	router.HandleFunc("/GetUserByID/{id}", controller.GetUserByID(db)).Methods("GET")
+	// router.HandleFunc("/Add", controller.CreateUser(db)).Methods("POST")
 
 	http.ListenAndServe(":9090", router)
 

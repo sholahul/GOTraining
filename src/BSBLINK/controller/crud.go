@@ -65,20 +65,43 @@ func GetUserByID(db *sql.DB) http.HandlerFunc {
 		var u model.User
 		err = db.QueryRow("Select id,username,email From omni.user where id = $1", id).Scan(&u.Id, &u.Username, &u.Email)
 
-		if err != nil {
+		//jika tidak terdapat data
+		if err == sql.ErrNoRows {
+			dr.Error = true
+			dr.Message = "No Data for id : " + vars["id"]
+
+			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusNotFound)
-			log.Println("ERROR")
+			json.NewEncoder(w).Encode(dr)
+
+			return
+		} else if err != nil { //jika terdapat error pada db
+			log.Println("Error Querying database")
+			dr.Error = true
+			dr.Message = "Database Internal Error"
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(dr)
+
+			return
+		} else {
+			dr.Error = false
+			dr.Message = "OK"
+			dr.Data = u
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(dr)
 			return
 		}
-
-		dr.Error = false
-		dr.Message = "OK"
-		dr.Data = u
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(dr)
 	}
 }
 
-//insert
+// insert
+// func CreateUser(db *sql.DB) http.HandlerFunc {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		var u model.User
+
+// 	}
+// }
