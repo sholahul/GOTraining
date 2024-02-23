@@ -13,3 +13,7 @@ type DataResponse struct {
 	Message    string `json:"message"`
 	Data       any    `json:"data,omitempty"`
 }
+
+type DataToken struct {
+	Token string `json:"token"`
+}
