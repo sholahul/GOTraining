@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -23,7 +24,7 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/login", login).Methods("POST")
-	http.ListenAndServe(":9090", router)
+	http.ListenAndServe(":9092", router)
 
 }
 
@@ -94,6 +95,11 @@ func login(w http.ResponseWriter, r *http.Request) {
 
 	// Print or use the string as needed
 	fmt.Println("Respon Body : ", bodyString)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode([]byte(bodyString))
+	log.Println("haaa")
 }
 
 func InqSaldo(w http.ResponseWriter, r *http.Request) {
