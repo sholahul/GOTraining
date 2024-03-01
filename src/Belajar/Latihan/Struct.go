@@ -23,6 +23,11 @@ type respon2 struct {
 	GetAllUser []map[string]string
 }
 
+type respon3 struct {
+	username string
+	password string
+}
+
 func Struct() {
 	var R respon
 	R.responCode = "00"
@@ -38,6 +43,13 @@ func Struct() {
 
 	// log.Println(R)
 	fmt.Print(R)
+
+	fmt.Println("\n\n =========== DEFINE STRUCT =========")
+	var R3 = respon3{
+		username: "Sholahul",
+		password: "Fajri",
+	}
+	fmt.Println(R3)
 
 	fmt.Println("\n\n =========== Struct and NMAP =========")
 
