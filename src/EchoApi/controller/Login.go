@@ -2,13 +2,14 @@ package controller
 
 import (
 	"ECHOAPI/model"
+	"crypto/subtle"
 	"log"
 	"net/http"
-	"time"
+	"os"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 type LoginRequest struct {
@@ -39,40 +40,6 @@ func init() {
 	}
 }
 
-func generateTokenPair(email string) (*TokenPair, error) {
-	// Use a secure secret key (replace "your-secret-key" with a strong, random key)
-	secretKey := []byte("your-secret-key")
-
-	// Access token
-	accessToken := jwt.New(jwt.SigningMethodHS512)
-	accessClaims := accessToken.Claims.(jwt.MapClaims)
-	accessClaims["email"] = email
-	accessClaims["exp"] = time.Now().Add(time.Minute * 1).Unix() // Access token expires in 1 minute
-
-	// Sign the access token
-	accessTokenString, err := accessToken.SignedString(secretKey)
-	if err != nil {
-		return nil, err
-	}
-
-	// Refresh token
-	refreshToken := jwt.New(jwt.SigningMethodHS512)
-	refreshClaims := refreshToken.Claims.(jwt.MapClaims)
-	refreshClaims["email"] = email
-	refreshClaims["exp"] = time.Now().Add(time.Hour * 24).Unix() // Refresh token expires in 24 hours
-
-	// Sign the refresh token
-	refreshTokenString, err := refreshToken.SignedString(secretKey)
-	if err != nil {
-		return nil, err
-	}
-
-	return &TokenPair{
-		AccessToken:  accessTokenString,
-		RefreshToken: refreshTokenString,
-	}, nil
-}
-
 // Use a secure comparison function (e.g., bcrypt.CompareHashAndPassword) in a real-world scenario.
 func comparePasswords(hashedPassword, inputPassword string) bool {
 	return hashedPassword == inputPassword
@@ -81,6 +48,10 @@ func comparePasswords(hashedPassword, inputPassword string) bool {
 func LoginHandler(c echo.Context) error {
 	// 	// Parse the request body
 	var loginReq LoginRequest
+
+	log.Println("Ada yang hit")
+	defer c.Bind(&loginReq)
+
 	if err := c.Bind(&loginReq); err != nil {
 		return c.JSON(http.StatusBadRequest, LoginResponse{
 			ResponseCode: "99",
@@ -106,7 +77,7 @@ func LoginHandler(c echo.Context) error {
 
 	// Authentication successful
 	// Generate JWT token
-	tokenPair, err := generateTokenPair(loginReq.Email)
+	tokenPair, err := GenerateTokenPair(loginReq.Email)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, LoginResponse{
 			ResponseCode: "99",
@@ -127,6 +98,9 @@ func LoginHandler(c echo.Context) error {
 			"refreshToken": refreshTokenString,
 		},
 	}
+	//set cookies
+	setTokenCookie(c, accessTokenString)
+	setRefreshTokenCookie(c, refreshTokenString)
 
 	return c.JSON(http.StatusOK, response)
 }
@@ -135,9 +109,33 @@ func Login() {
 	// Create an Echo instance
 	model.ConnectDB()
 	e := echo.New()
+	e.Debug = true
 
+	//echo middleware  logger
+	// e.Use(middleware.Logger())
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: "protocol=${protocol}, method=${method}, uri=${uri}, status=${status},error=${error} \n",
+	}))
+
+	//BASIC AUTH
+	e.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
+		// Be careful to use constant time comparison to prevent timing attacks
+		user := os.Getenv("AU_USERNAME")
+		pass := os.Getenv("AU_PASSWORD")
+		if subtle.ConstantTimeCompare([]byte(username), []byte(user)) == 1 &&
+			subtle.ConstantTimeCompare([]byte(password), []byte(pass)) == 1 {
+			return true, nil
+		}
+		return false, nil
+	}))
+
+	//SERVER HEADER
+	e.Use(ServerHeader)
+
+	//set group
+	g := e.Group("/bsb")
 	// Define routes
-	e.POST("/login", LoginHandler)
+	g.POST("/login", LoginHandler)
 
 	// Start the server
 	e.Start(":8080")
