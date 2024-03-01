@@ -3,6 +3,7 @@ package model
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -50,8 +51,8 @@ func GetUserByEmail(email string) (*User, error) {
 	// Query user information based on email
 	row := DB.QueryRow("SELECT email, password FROM omni.user WHERE email = $1", email)
 
-	var user User
-	err := row.Scan(&user.Email, &user.Password)
+	var u User
+	err := row.Scan(&u.Email, &u.Password)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, err // User not found
@@ -59,5 +60,39 @@ func GetUserByEmail(email string) (*User, error) {
 		return nil, err // Other error
 	}
 
-	return &user, nil
+	return &u, nil
+}
+
+func GetAll() ([]User, error) {
+	// Ensure the DB connection is properly established
+	if DB == nil {
+		return nil, errors.New("database connection is nil")
+	}
+
+	// Query user information based on email
+	rows, err := DB.Query("SELECT id, nama, email, role FROM omni.user")
+	if err != nil {
+		return nil, err // Return the error if the query fails
+	}
+	defer rows.Close()
+
+	var Data_users []User
+
+	// Iterate over the rows returned by the query
+	for rows.Next() {
+		var u User // Use the correct struct name
+		// Scan each row into the User struct
+		err := rows.Scan(&u.Id, &u.Username, &u.Email, &u.Role)
+		if err != nil {
+			return nil, err // Return the error if scanning fails
+		}
+		Data_users = append(Data_users, u)
+	}
+
+	// Check for errors from iterating over rows
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return Data_users, nil
 }

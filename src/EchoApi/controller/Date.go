@@ -2,22 +2,24 @@ package controller
 
 import (
 	"fmt"
+	"os"
 	"time"
 )
 
-func Get_date() string {
-	// Set the time zone to "Asia/Jakarta"
-	TimeZone, err := time.LoadLocation("Asia/Jakarta")
+func Get_Date() (time.Time, error) {
+	// Set the time zone to based on setting in env
+	location := os.Getenv("Location")
+	timeZone, err := time.LoadLocation(location)
+
 	if err != nil {
 		// Handle error if timezone loading fails
-		return fmt.Sprintf("Error loading timezone: %s", err)
+		fmt.Printf("Error loading timezone: %s\n", err)
+		// Return the current time in UTC as a fallback
+		return time.Now().UTC(), err
 	}
 
 	// Get the current time in the Indonesian timezone
-	currentTime := time.Now().In(TimeZone)
+	currentTime := time.Now().In(timeZone)
 
-	// Format the time as per your requirement (e.g., RFC1123)
-	formattedTime := currentTime.Format(time.RFC1123)
-
-	return formattedTime
+	return currentTime, nil
 }
