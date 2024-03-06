@@ -69,12 +69,13 @@ func GetAll() ([]User, error) {
 	}
 
 	// Query user information based on email
-	rows, err := DB.Query("SELECT id, nama, email, role FROM omni.user")
+	rows, err := DB.Query("SELECT id, username, email, role FROM omni.user")
 	if err != nil {
+		log.Println("ERORRRR")
 		return nil, err // Return the error if the query fails
 	}
 	defer rows.Close()
-
+	log.Println("LEWAT DLU")
 	var Data_users []User
 
 	// Iterate over the rows returned by the query
@@ -83,6 +84,7 @@ func GetAll() ([]User, error) {
 		// Scan each row into the User struct
 		err := rows.Scan(&u.Id, &u.Username, &u.Email, &u.Role)
 		if err != nil {
+			log.Println("ERORRRR")
 			return nil, err // Return the error if scanning fails
 		}
 		Data_users = append(Data_users, u)

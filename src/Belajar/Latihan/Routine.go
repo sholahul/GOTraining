@@ -12,7 +12,7 @@ func print(till int, message string) {
 }
 
 func Goroutine() {
-	runtime.GOMAXPROCS(2)
+	runtime.GOMAXPROCS(2) //setting core process seberapa byk digunakan
 
 	go print(5, "halo")
 

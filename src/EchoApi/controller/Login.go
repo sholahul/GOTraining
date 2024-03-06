@@ -2,10 +2,8 @@ package controller
 
 import (
 	"ECHOAPI/model"
-	"crypto/subtle"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
@@ -118,16 +116,16 @@ func Login() {
 	}))
 
 	//BASIC AUTH
-	e.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
-		// Be careful to use constant time comparison to prevent timing attacks
-		user := os.Getenv("AU_USERNAME")
-		pass := os.Getenv("AU_PASSWORD")
-		if subtle.ConstantTimeCompare([]byte(username), []byte(user)) == 1 &&
-			subtle.ConstantTimeCompare([]byte(password), []byte(pass)) == 1 {
-			return true, nil
-		}
-		return false, nil
-	}))
+	// e.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
+	// 	// Be careful to use constant time comparison to prevent timing attacks
+	// 	user := os.Getenv("AU_USERNAME")
+	// 	pass := os.Getenv("AU_PASSWORD")
+	// 	if subtle.ConstantTimeCompare([]byte(username), []byte(user)) == 1 &&
+	// 		subtle.ConstantTimeCompare([]byte(password), []byte(pass)) == 1 {
+	// 		return true, nil
+	// 	}
+	// 	return false, nil
+	// }))
 
 	//SERVER HEADER
 	e.Use(ServerHeader)
@@ -137,6 +135,15 @@ func Login() {
 	// Define routes
 	g.POST("/login", LoginHandler)
 
+	gwt := e.Group("/bsbjwt")
+	//use gwt
+	gwt.Use(middleware.JWTWithConfig(middleware.JWTConfig{
+		SigningMethod: "HS512",
+		SigningKey:    []byte("bsb"), // Sesuaikan dengan kunci yang benar
+		TokenLookup:   "header:Authorization",
+		AuthScheme:    "Bearer",
+	}))
+	gwt.GET("/getalluser", GetAllUser)
 	// Start the server
 	e.Start(":8080")
 }
